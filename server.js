@@ -21,7 +21,7 @@ function init(){
     this.port      = process.env.OPENSHIFT_NODEJS_PORT || 8000;
 
 	http.listen( port, ipaddress, function(){
-	  console.log('listening on:'  + process.env.PORT);
+	  console.log('listening on:'  + port);
 	});
 	createAsteroidData()
 	setEventHandlers();
