@@ -1,159 +1,164 @@
-#!/bin/env node
-//  OpenShift sample Node application
 var express = require('express');
-var fs      = require('fs');
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+var RemoteEntity = require("./RemoteEntity").RemoteEntity;
+var players;
+var projectiles;
+var asteroids = [];
+
+function init(){
+	players = [];
+	projectiles = [];
+	app.use(express.static(__dirname + '/public'));
+
+	app.get('/', function(req, res){
+	  res.sendFile('index.html');
+	});
+	
+	this.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
+    this.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+
+	http.listen( port, ipaddress, function(){
+	  console.log('listening on:'  + process.env.PORT);
+	});
+	createAsteroidData()
+	setEventHandlers();
+	
+}
+
+function randomNumber(MAX, MIN){
+	var number = Math.floor((Math.random() * MAX) + MIN);
+	return number;
+};
+
+var setEventHandlers = function() {
+    io.on("connection", onSocketConnection);
+};
+
+function onSocketConnection(socket) {
+    console.log("New player has connected (server): "+socket.id);
+    socket.on("disconnect", onSocketDisconnect);
+    socket.on("new player", onNewPlayer);
+    socket.on("update player", onUpdatePlayer);
+};
+
+function onSocketDisconnect() {
+    console.log("Player has disconnected (server): "+this.id);
+	
+	var removePlayer = playerById(this.id);
+
+	if (!removePlayer) {
+		console.log("Player not found: remove(server)"+this.id);
+		return;
+	};
+
+	players.splice(players.indexOf(removePlayer), 1);
+	this.broadcast.emit("remove player", {id: this.id});
+};
+
+function createAsteroidData(){
+	for(i = 0; i < 1000; i++){
+		//var debrisGeometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+		//var debrisMaterial = new THREE.MeshLambertMaterial( { color: 0x0000CC } );
+		var asteroid = new Object();
+		
+		asteroid.posX = randomNumber(65000, -65000);
+		asteroid.posY = randomNumber(10000, -5000);
+		asteroid.posZ = randomNumber(10000, -5000);
+		
+		asteroid.rotX = randomNumber(10, 1);
+		asteroid.rotY = randomNumber(10, 1);
+		asteroid.rotZ = randomNumber(10, 1);
+		
+		asteroid.scaleX = randomNumber(100, 30);
+		asteroid.scaleY = randomNumber(100, 30);
+		asteroid.scaleZ = randomNumber(100, 30);
+		
+		asteroid.rotAmount = randomNumber(5, 1);
+		asteroid.speed = randomNumber(15, 1) * 0.1;
+		
+		asteroids.push(asteroid);
+	};
+}
+
+function updateAsteroids(){
+	var loop = true;
+	while(loop == true){
+		for(var i = 0; i < asteroids.length; i++){
+			asteroids[i].rotX += 0.01;
+			asteroids[i].posX += asteroids[i].speed;
+		}
+	}
+}
+
+function onGenerateAsteroids(){
+	
+	this.emit("generate asteroids", {asteroidArray: asteroids});
+  
+}
 
 
-/**
- *  Define the sample application.
- */
-var SampleApp = function() {
+function onNewPlayer(data) {
+	var newPlayer = new RemoteEntity(data.x, data.y, data.z);
+	newPlayer.setMatrix(data.playerMatrix);
+	console.log("coord(server): " + data.x + " " + data.y + " " + data.z);
+	newPlayer.id = this.id;
+	this.broadcast.emit("new player", {id: newPlayer.id, playerMatrix: newPlayer.getMatrix()});
+	var i, existingPlayer;
+	for (i = 0; i < players.length; i++) {
+		console.log("existing player");
+		existingPlayer = players[i];
+		this.emit("new player", {id: existingPlayer.id, playerMatrix: existingPlayer.getMatrix()});
+	};
+	players.push(newPlayer);
+};
 
-    //  Scope.
-    var self = this;
+function onUpdatePlayer(data) {
+	var movePlayer = playerById(this.id);
+
+	if (!movePlayer) {
+		//console.log("Player not found move(server): "+data.id);
+		return;
+	};
+	//console.log(" move coord(server): " + data.x + " " + data.y + " " + data.z);
+
+	movePlayer.setMatrix(data.playerMatrix);
+	movePlayer.id = this.id;
+	this.broadcast.emit("update player", {id: movePlayer.id, playerMatrix: movePlayer.getMatrix()});
+};
+
+function onNewProjectile(data) {
+	
+	var newProjectile = new RemoteEntity(data.x, data.y, data.z);
+	newProjectile.setMatrix(data.projectileMatrix);
+	newProjectile.id = this.id;
+	this.broadcast.emit("new projectile", {id: newProjectile.id, projectileMatrix: newProjectile.getMatrix()});
+
+	//projectiles.push(newProjectile);
+};
 
 
-    /*  ================================================================  */
-    /*  Helper functions.                                                 */
-    /*  ================================================================  */
-
-    /**
-     *  Set up server IP address and port # using env variables/defaults.
-     */
-    self.setupVariables = function() {
-        //  Set the environment variables we need.
-        self.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
-        self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
-
-        if (typeof self.ipaddress === "undefined") {
-            //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
-            //  allows us to run/test the app locally.
-            console.warn('No OPENSHIFT_NODEJS_IP var, using 127.0.0.1');
-            self.ipaddress = "127.0.0.1";
-        };
+function playerById(id) {
+    var i; 
+    for (i = 0; i < players.length; i++) {
+        if (players[i].id == id)
+            return players[i];
     };
 
-//added comment for commit test
-    /**
-     *  Populate the cache.
-     */
-    self.populateCache = function() {
-        if (typeof self.zcache === "undefined") {
-            self.zcache = { 'index.html': '' };
-        }
+    return false;
+};
 
-        //  Local cache for static content.
-        self.zcache['index.html'] = fs.readFileSync('./index.html');
+function projectileById(id) {
+    var i; 
+    for (i = 0; i < projectiles.length; i++) {
+        if (projectiles[i].id == id)
+            return projectiles[i];
     };
 
-
-    /**
-     *  Retrieve entry (content) from cache.
-     *  @param {string} key  Key identifying content to retrieve from cache.
-     */
-    self.cache_get = function(key) { return self.zcache[key]; };
+    return false;
+};
 
 
-    /**
-     *  terminator === the termination handler
-     *  Terminate server on receipt of the specified signal.
-     *  @param {string} sig  Signal to terminate on.
-     */
-    self.terminator = function(sig){
-        if (typeof sig === "string") {
-           console.log('%s: Received %s - terminating sample app ...',
-                       Date(Date.now()), sig);
-           process.exit(1);
-        }
-        console.log('%s: Node server stopped.', Date(Date.now()) );
-    };
-
-
-    /**
-     *  Setup termination handlers (for exit and a list of signals).
-     */
-    self.setupTerminationHandlers = function(){
-        //  Process on exit and signals.
-        process.on('exit', function() { self.terminator(); });
-
-        // Removed 'SIGPIPE' from the list - bugz 852598.
-        ['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT',
-         'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGTERM'
-        ].forEach(function(element, index, array) {
-            process.on(element, function() { self.terminator(element); });
-        });
-    };
-
-
-    /*  ================================================================  */
-    /*  App server functions (main app logic here).                       */
-    /*  ================================================================  */
-
-    /**
-     *  Create the routing table entries + handlers for the application.
-     */
-    self.createRoutes = function() {
-        self.routes = { };
-
-        self.routes['/asciimo'] = function(req, res) {
-            var link = "http://i.imgur.com/kmbjB.png";
-            res.send("<html><body><img src='" + link + "'></body></html>");
-        };
-
-        self.routes['/'] = function(req, res) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send(self.cache_get('index.html') );
-        };
-    };
-
-
-    /**
-     *  Initialize the server (express) and create the routes and register
-     *  the handlers.
-     */
-    self.initializeServer = function() {
-        self.createRoutes();
-        self.app = express.createServer();
-
-        //  Add handlers for the app (from the routes).
-        for (var r in self.routes) {
-            self.app.get(r, self.routes[r]);
-        }
-    };
-
-
-    /**
-     *  Initializes the sample application.
-     */
-    self.initialize = function() {
-        self.setupVariables();
-        self.populateCache();
-        self.setupTerminationHandlers();
-
-        // Create the express server and routes.
-        self.initializeServer();
-    };
-
-
-    /**
-     *  Start the server (starts up the sample application).
-     */
-    self.start = function() {
-        //  Start the app on the specific interface (and port).
-        self.app.listen(self.port, self.ipaddress, function() {
-            console.log('%s: Node server started on %s:%d ...',
-                        Date(Date.now() ), self.ipaddress, self.port);
-        });
-    };
-
-};   /*  Sample Application.  */
-
-
-
-/**
- *  main():  Main code.
- */
-var zapp = new SampleApp();
-zapp.initialize();
-zapp.start();
-
+init();
