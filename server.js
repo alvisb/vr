@@ -33,7 +33,7 @@ var SampleApp = function() {
         };
     };
 
-
+//added comment for commit test
     /**
      *  Populate the cache.
      */
