@@ -1,10 +1,7 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io1 = require('socket.io')(http);
-var io = io1("http://vr-alvis.rhcloud.com:8000"{
-	
-});
+var io = require('socket.io')(http);
 
 var RemoteEntity = require("./RemoteEntity").RemoteEntity;
 var players;
