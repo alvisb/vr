@@ -1,4 +1,4 @@
-var socket = new WebSocket("ws://app-lovingwebsockets.rhcloud.com:8000/");
+var socket = new WebSocket("ws://http://vr-alvis.rhcloud.com/:8000/");
 var remoteShips = [];
 var remoteProjectiles = [];
 
