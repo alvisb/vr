@@ -1,4 +1,4 @@
-var socket = new WebSocket("ws://http://vr-alvis.rhcloud.com/:8000/");
+var socket = io();
 var remoteShips = [];
 var remoteProjectiles = [];
 
