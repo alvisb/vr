@@ -1,4 +1,4 @@
-var socket = io();
+var socket = new io("ws://app-lovingwebsockets.rhcloud.com:8000/");
 var remoteShips = [];
 var remoteProjectiles = [];
 
