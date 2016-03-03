@@ -159,7 +159,7 @@ sceneCSS.add(labelObject);
  */
 
 
-var timeStart;
+var timeStart, timeEnd;
  
 var keysDown = [];
 addEventListener("keydown", function (e) {
@@ -303,8 +303,8 @@ function onRemovePlayer(data){
 
 function onGetTime(data){
 	var t = new Date();
-	newTime = t.getTime();
-	var latency = newTime - timeStart;
+	var timeNew = t.getTime();
+	var latency = timeNew - timeStart;
 	console.log("time difference: " + latency);
 }
 
