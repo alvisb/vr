@@ -304,7 +304,7 @@ function onRemovePlayer(data){
 function onGetTime(data){
 	var t = new Date();
 	var timeNew = t.getTime();
-	var latency = timeNew - timeStart;
+	var latency = timeNew - data.time;
 	console.log("time difference: " + latency);
 }
 
