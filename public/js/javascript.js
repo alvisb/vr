@@ -1,4 +1,4 @@
-var socket = io();
+var socket = new WebSocket("ws://app-lovingwebsockets.rhcloud.com:8000/");
 var remoteShips = [];
 var remoteProjectiles = [];
 
@@ -63,6 +63,7 @@ function randomNumber(MAX, MIN){
 var cube = new Ship( geometryBox, materialBox );
 cube.receiveShadow = true;
 cube.castShadow = true;
+cube.setSpeed(1);
 cube.add(camera);
 cube.position.y = 1;
 scene.add( cube );
@@ -240,9 +241,14 @@ function getInput(){
 		cube.setSpeed(5);
 	}
 	else{
-		cube.setSpeed(2);
+		
 	}
 }
+
+window.onload = function() {
+  var gui = new dat.GUI();
+  gui.add(cube, 'speed', 0, 10);
+};
 
 
 function onSocketConnected() {
