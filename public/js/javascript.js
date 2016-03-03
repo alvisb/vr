@@ -1,4 +1,5 @@
 var socket = new io("ws://vr-alvis.rhcloud.com:8000/");
+//var socket = io();
 var remoteShips = [];
 var remoteProjectiles = [];
 
@@ -7,6 +8,7 @@ socket.on("disconnect", onSocketDisconnect);
 socket.on("new player", onNewPlayer);
 socket.on("update player", onUpdatePlayer);
 socket.on("remove player", onRemovePlayer);
+socket.on("get time", onGetTime);
 
 
 var isMobile = {
@@ -156,6 +158,9 @@ labelObject.scale.set(0.1, 0.1, 0.1)
 sceneCSS.add(labelObject);
  */
 
+
+var timeStart;
+ 
 var keysDown = [];
 addEventListener("keydown", function (e) {
 			keysDown[e.keyCode] = true;
@@ -240,10 +245,17 @@ function getInput(){
 	if ("16" in keysDown){// SHIFT
 		cube.setSpeed(5);
 	}
+	if ("84" in keysDown){// T
+		var t = new Date();
+		timeStart = t.getTime();
+		console.log("client start: " + timeStart);
+		socket.emit("get time", {time: timeStart});
+	}
 	else{
 		
 	}
 }
+
 
 window.onload = function() {
   var gui = new dat.GUI();
@@ -287,6 +299,13 @@ function onRemovePlayer(data){
 	
 	scene.remove(removePlayer);
 	remoteShips.splice(remoteShips.indexOf(removePlayer), 1);
+}
+
+function onGetTime(data){
+	var t = new Date();
+	newTime = t.getTime();
+	var latency = newTime - timeStart;
+	console.log("time difference: " + latency);
 }
 
 function shipById(id) {

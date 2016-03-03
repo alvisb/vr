@@ -42,6 +42,7 @@ function onSocketConnection(socket) {
     socket.on("disconnect", onSocketDisconnect);
     socket.on("new player", onNewPlayer);
     socket.on("update player", onUpdatePlayer);
+	socket.on("get time", onGetTime);
 };
 
 function onSocketDisconnect() {
@@ -57,6 +58,11 @@ function onSocketDisconnect() {
 	players.splice(players.indexOf(removePlayer), 1);
 	this.broadcast.emit("remove player", {id: this.id});
 };
+
+function onGetTime(data){
+	var timeNew = data.time;
+	this.broadcast.emit("get time", {time: timeNew});
+}
 
 function createAsteroidData(){
 	for(i = 0; i < 1000; i++){
