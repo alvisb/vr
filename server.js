@@ -18,7 +18,7 @@ function init(){
 	});
 	
 	this.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
-    this.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+    this.port      = process.env.OPENSHIFT_NODEJS_PORT || 8000;
 
 	http.listen( port, ipaddress, function(){
 	  console.log('listening on:'  + process.env.PORT);
