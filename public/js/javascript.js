@@ -170,11 +170,13 @@ addEventListener("keyup", function (e) {
 	delete keysDown[e.keyCode];
 });
 		
-window.addEventListener('devicemotion', function(e) {
-  cube.position.z += e.rotationRate.beta * 0.1 *(-1);
-  cube.rotateY (e.rotationRate.alpha  * 0.1);
-});
-		
+if(isMobile.any()){
+	window.addEventListener('devicemotion', function(e) {
+	  cube.position.z += e.rotationRate.beta * 0.1 *(-1);
+	  cube.rotateY (e.rotationRate.alpha  * 0.1);
+	});
+}
+
 document.addEventListener("mousemove", function(e) {
 		cube.rotateY (e.movementX * 0.01 *(-1));
 		/* if(e.movementY > 0.5 && camera.position.y < 2){
