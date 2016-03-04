@@ -163,12 +163,16 @@ var timeStart, timeEnd;
  
 var keysDown = [];
 addEventListener("keydown", function (e) {
-			keysDown[e.keyCode] = true;
-		});
+	keysDown[e.keyCode] = true;
+});
 
-		addEventListener("keyup", function (e) {
-			delete keysDown[e.keyCode];
-		});
+addEventListener("keyup", function (e) {
+	delete keysDown[e.keyCode];
+});
+		
+window.addEventListener('devicemotion', function(e) {
+  cube.rotateY (e.acceleration.x * 0.01 *(-1));
+});
 		
 document.addEventListener("mousemove", function(e) {
 		cube.rotateY (e.movementX * 0.01 *(-1));
