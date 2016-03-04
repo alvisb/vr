@@ -171,7 +171,7 @@ addEventListener("keyup", function (e) {
 });
 		
 window.addEventListener('devicemotion', function(e) {
-  cube.rotateY (e.acceleration.x * 0.01 *(-1));
+  cube.rotateY (e.acceleration.x *(-1));
 });
 		
 document.addEventListener("mousemove", function(e) {
