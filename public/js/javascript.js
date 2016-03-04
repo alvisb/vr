@@ -220,7 +220,7 @@ var render = function () {
 	getInput();
 	socket.emit("update player", {playerMatrix: cube.matrix});
 	updateHUD();
-	renderer.render(scene, camera);
+	effect.render(scene, camera);
 };
 
 
