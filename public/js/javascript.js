@@ -43,6 +43,7 @@ renderer.shadowMap.enabled = true;
 //renderer.setClearColor( 0xffffff, 0);
 document.body.appendChild( renderer.domElement );
 
+var effect = new THREE.StereoEffect(renderer);
 
 var light = new THREE.DirectionalLight(0xf6e86d, 1);
 light.position.set(0.4, 100, 2);
