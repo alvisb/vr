@@ -40,10 +40,11 @@ var camera = new THREE.PerspectiveCamera( 55, window.innerWidth/window.innerHeig
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
-//renderer.setClearColor( 0xffffff, 0);
+renderer.setClearColor( 0xffffff, 0);
 document.body.appendChild( renderer.domElement );
 
 var effect = new THREE.StereoEffect(renderer);
+effect.setSize( window.innerWidth, window.innerHeight );
 
 var light = new THREE.DirectionalLight(0xf6e86d, 1);
 light.position.set(0.4, 100, 2);
@@ -221,6 +222,7 @@ var render = function () {
 	socket.emit("update player", {playerMatrix: cube.matrix});
 	updateHUD();
 	effect.render(scene, camera);
+	//renderer.render(scene, camera);
 };
 
 
