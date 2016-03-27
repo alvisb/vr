@@ -135,7 +135,6 @@ document.getElementsByTagName("canvas")[0].addEventListener("click", function() 
 document.getElementsByTagName("canvas")[0].addEventListener("mousedown", function() {
 	if(isMobile.any()){
 		touching = true;
-		mobileInput();
 	}
 }, false);
 
@@ -154,6 +153,7 @@ function mobileInput(){
 var render = function () {
 	requestAnimationFrame( render );
 	getInput();
+	mobileInput();
 	socket.emit("update player", {playerMatrix: cube.matrix});
 	updateHUD();
 	effect.render(scene, camera);
