@@ -130,6 +130,9 @@ document.addEventListener("mousemove", function(e) {
 
 document.getElementsByTagName("canvas")[0].addEventListener("click", function() {
 	this.requestPointerLock();
+}, false);
+
+document.getElementsByTagName("canvas")[0].addEventListener("mousedown", function() {
 	if(isMobile.any()){
 		touching = true;
 		mobileInput();
