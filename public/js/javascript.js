@@ -107,6 +107,7 @@ loader.load('models/bed.json', function (geometry) {
 var timeStart, timeEnd;
  
 var keysDown = [];
+var touching = false;
 addEventListener("keydown", function (e) {
 	keysDown[e.keyCode] = true;
 });
@@ -130,12 +131,21 @@ document.addEventListener("mousemove", function(e) {
 document.getElementsByTagName("canvas")[0].addEventListener("click", function() {
 	this.requestPointerLock();
 	if(isMobile.any()){
+		touching = true;
 		mobileInput();
 	}
 }, false);
 
+document.getElementsByTagName("canvas")[0].addEventListener("mouseup", function() {
+	if(isMobile.any()){
+		touching = false;
+	}
+}, false);
+
 function mobileInput(){
-	cube.move(0, 0, -1);
+	if(touching == true){
+		cube.move(0, 0, -1);	
+	}
 }
 
 var render = function () {
