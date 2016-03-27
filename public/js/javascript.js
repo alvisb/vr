@@ -125,20 +125,20 @@ if(isMobile.any()){
 
 document.addEventListener("mousemove", function(e) {
 		cube.rotateY (e.movementX * 0.01 *(-1));
-		camera.rotateX (e.movementY * 0.01 *(-1));
+		camera.rotateX (e.movementY * 0.01 *(1));
 });
 
 document.getElementsByTagName("canvas")[0].addEventListener("click", function() {
 	this.requestPointerLock();
 }, false);
 
-document.getElementsByTagName("canvas")[0].addEventListener("mousedown", function() {
+document.getElementsByTagName("canvas")[0].addEventListener("onmousedown", function() {
 	if(isMobile.any()){
 		touching = true;
 	}
 }, false);
 
-document.getElementsByTagName("canvas")[0].addEventListener("mouseup", function() {
+document.getElementsByTagName("canvas")[0].addEventListener("onmouseup", function() {
 	if(isMobile.any()){
 		touching = false;
 	}
