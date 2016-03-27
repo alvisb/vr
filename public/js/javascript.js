@@ -53,7 +53,7 @@ scene.add(light);
 var lightGlobal = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1);
 scene.add( lightGlobal );
 
-var geometryBox = new THREE.BoxGeometry( 1, 1, 1);
+var geometryBox = new THREE.BoxGeometry( 1, 2, 1);
 var materialBox = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
 
 var geometrySphere = new THREE.SphereGeometry( 0.2, 64, 64 );
@@ -71,9 +71,9 @@ cube.setSpeed(1);
 cube.add(camera);
 cube.position.y = 1;
 scene.add( cube );
-camera.position.y = 2;
-camera.position.z = 4;
-camera.lookAt(cube);
+camera.position.y = 1;
+//camera.position.z = 4;
+//camera.lookAt(cube);
 
 
 var geoFloor = new THREE.BoxGeometry( 20, 1, 20);
@@ -83,83 +83,26 @@ var floor = new THREE.Mesh( geoFloor, matFloor );
 floor.receiveShadow = true;
 floor.castShadow = true;
 scene.add( floor );
- 
 
-/* var loader = new THREE.JSONLoader(); // init the loader util
+var tempGeo, tempMat;
+var bed = new THREE.Mesh(geoFloor, matFloor);
+bed.position.y = 0.5;
+scene.add(bed);
+var loader = new THREE.JSONLoader(); // init the loader util
 
-loader.load('models/fighter.json', function (geometry) {
+loader.load('models/bed.json', function (geometry) {
   // create a new material
-  var material = new THREE.MeshLambertMaterial( { color: 0xCCCCCC } );
+  var material = new THREE.MeshLambertMaterial( { color: 0xFF0000} );
   
-  tempGeo = geometry;
-  tempMat = material;
-  cube.geometry = geometry;
-  cube.material = material;
-  
+  bed.geometry = geometry;
+  bed.material = material;  
 });
 
-loader.load('models/station.json', function (geometry) {
-  // create a new material
-  var material = new THREE.MeshLambertMaterial({
-    map: THREE.ImageUtils.loadTexture('/img/stationTexture.jpg'),  // specify and load the texture
-  });
-  
-  // create a mesh with models geometry and material
-  
 
-  stationMesh.geometry = geometry;
-  stationMesh.material = material;
-});
 
-var skybox;
-
-function loadSkybox(){
-	var urls = [
-	  'img/box_right1.jpg',
-	  'img/box_left2.jpg',
-	  'img/box_top3.jpg',
-	  'img/box_bottom4.jpg',
-	  'img/box_front5.jpg',
-	  'img/box_back6.jpg'
-	];
-
-	var cubemap = THREE.ImageUtils.loadTextureCube(urls); // load textures
-	cubemap.format = THREE.RGBFormat;
-
-	var shader = THREE.ShaderLib['cube']; // init cube shader from built-in lib
-	shader.uniforms['tCube'].value = cubemap; // apply textures to shader
-
-	// create shader material
-	var skyBoxMaterial = new THREE.ShaderMaterial( {
-	  fragmentShader: shader.fragmentShader,
-	  vertexShader: shader.vertexShader,
-	  uniforms: shader.uniforms,
-	  depthWrite: false,
-	  side: THREE.BackSide
-	});
-
-	// create skybox mesh
-	skybox = new THREE.Mesh(
-	  new THREE.CubeGeometry(1000, 1000, 1000),
-	  skyBoxMaterial
-	);
-	skybox.renderOrder = -1;
-	scene.add(skybox);
-
-}
-
-if(!isMobile.any()){
+/* if(!isMobile.any()){
 	loadSkybox();
-} */
-
-/* var label = document.createElement( 'p' );
-label.className = 'playerTag';
-label.textContent = "THREE.JS";
-labelObject = new THREE.CSS3DObject( label );
-labelObject.scale.set(0.1, 0.1, 0.1)
-sceneCSS.add(labelObject);
- */
-
+}  */
 
 var timeStart, timeEnd;
  
@@ -174,47 +117,26 @@ addEventListener("keyup", function (e) {
 		
 if(isMobile.any()){
 	window.addEventListener('devicemotion', function(e) {
-	  cube.position.z += e.rotationRate.beta * 0.1 *(-1);
-	  cube.rotateY (e.rotationRate.alpha  * 0.1);
+		cube.rotateY (e.rotationRate.alpha  * 0.1);
+		camera.rotateX (e.rotationRate.beta  * 0.1);
 	});
 }
 
 document.addEventListener("mousemove", function(e) {
 		cube.rotateY (e.movementX * 0.01 *(-1));
-		/* if(e.movementY > 0.5 && camera.position.y < 2){
-			camera.position.y += 0.01;
-		}
-		if(e.movementY < -0.5 && camera.position.y > -1){
-			camera.position.y -= 0.01;
-		}
-		if(e.movementX > 0.5 && camera.position.x < 2){
-			camera.position.x += 0.01;
-		}
-		if(e.movementX < -0.5 && camera.position.x > -2){
-			camera.position.x -= 0.01;
-		}
-		 */
-		/* if(e.movementX > 0.5){
-			//cube.rotateY(-0.005);
-			cube.rotateZ(-0.005);
-		}
-		if(e.movementX < -0.5){
-			//cube.rotateY(0.005);
-			cube.rotateZ(0.005);
-		}
-		if(e.movementY > 0.5){
-			cube.rotateX(0.005);
-		}
-		if(e.movementY < -0.5){
-			cube.rotateX(-0.005);
-		} */
-		
+		camera.rotateX (e.movementY * 0.01 *(-1));
 });
 
 document.getElementsByTagName("canvas")[0].addEventListener("click", function() {
 	this.requestPointerLock();
+	if(isMobile.any()){
+		mobileInput();
+	}
 }, false);
 
+function mobileInput(){
+	cube.move(0, 0, -1);
+}
 
 var render = function () {
 	requestAnimationFrame( render );

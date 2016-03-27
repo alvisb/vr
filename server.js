@@ -5,7 +5,6 @@ var io = require('socket.io')(http);
 
 var RemoteEntity = require("./RemoteEntity").RemoteEntity;
 var players;
-var projectiles;
 var asteroids = [];
 
 function init(){
@@ -23,7 +22,6 @@ function init(){
 	http.listen( port, ipaddress, function(){
 	  console.log('listening on:'  + port);
 	});
-	createAsteroidData()
 	setEventHandlers();
 	
 }
@@ -64,48 +62,6 @@ function onGetTime(data){
 	this.broadcast.emit("get time", {time: timeNew});
 }
 
-function createAsteroidData(){
-	for(i = 0; i < 1000; i++){
-		//var debrisGeometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
-		//var debrisMaterial = new THREE.MeshLambertMaterial( { color: 0x0000CC } );
-		var asteroid = new Object();
-		
-		asteroid.posX = randomNumber(65000, -65000);
-		asteroid.posY = randomNumber(10000, -5000);
-		asteroid.posZ = randomNumber(10000, -5000);
-		
-		asteroid.rotX = randomNumber(10, 1);
-		asteroid.rotY = randomNumber(10, 1);
-		asteroid.rotZ = randomNumber(10, 1);
-		
-		asteroid.scaleX = randomNumber(100, 30);
-		asteroid.scaleY = randomNumber(100, 30);
-		asteroid.scaleZ = randomNumber(100, 30);
-		
-		asteroid.rotAmount = randomNumber(5, 1);
-		asteroid.speed = randomNumber(15, 1) * 0.1;
-		
-		asteroids.push(asteroid);
-	};
-}
-
-function updateAsteroids(){
-	var loop = true;
-	while(loop == true){
-		for(var i = 0; i < asteroids.length; i++){
-			asteroids[i].rotX += 0.01;
-			asteroids[i].posX += asteroids[i].speed;
-		}
-	}
-}
-
-function onGenerateAsteroids(){
-	
-	this.emit("generate asteroids", {asteroidArray: asteroids});
-  
-}
-
-
 function onNewPlayer(data) {
 	var newPlayer = new RemoteEntity(data.x, data.y, data.z);
 	newPlayer.setMatrix(data.playerMatrix);
@@ -134,17 +90,6 @@ function onUpdatePlayer(data) {
 	movePlayer.id = this.id;
 	this.broadcast.emit("update player", {id: movePlayer.id, playerMatrix: movePlayer.getMatrix()});
 };
-
-function onNewProjectile(data) {
-	
-	var newProjectile = new RemoteEntity(data.x, data.y, data.z);
-	newProjectile.setMatrix(data.projectileMatrix);
-	newProjectile.id = this.id;
-	this.broadcast.emit("new projectile", {id: newProjectile.id, projectileMatrix: newProjectile.getMatrix()});
-
-	//projectiles.push(newProjectile);
-};
-
 
 function playerById(id) {
     var i; 
